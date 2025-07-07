@@ -4,3 +4,110 @@ author: Aidan Fauth
 format: html
 ---
 
+## Set up
+
+```{r}
+#| message: false
+#| warning: false
+rm(list = ls())
+library(tidyverse)
+library(here)
+```
+
+
+## Load in the data
+
+```{r}
+porc <- read.csv(here("Data", "porcupine_arctos_search_6_July_2025.csv"))
+View(porc)
+```
+
+
+## Create a clean dataset
+
+```{r}
+porc1 <- porc |> select(ROW_NUM, DEC_LAT, SPECIES, YEAR_COLLECTED, MONTH_COLLECTED, DAY_COLLECTED, AGE,
+EAR_LENGTH_MM, HIND_FOOT_W_CLAW_MM, SEX, TAIL_LENGTH_MM, TOTAL_LENGTH_MM, MASS_G)
+View(porc1)
+```
+
+
+## Work with the data
+
+Filter for only female porcs:
+
+```{r}
+# filter for females
+porc1 |> filter(SEX == "female")
+
+# mean hind foot with claw by sex
+porc1 |> group_by(SEX) |> 
+  summarise(
+    Mean_Hind_by_Sex = mean(HIND_FOOT_W_CLAW_MM))
+
+# Mean adult body weight by sex
+
+# Check if there are different versions of adult
+unique(porc1$AGE)
+
+porc1 |> filter(AGE == "adult") |> 
+  group_by(SEX) |> 
+  summarise(Mean_bm = mean(MASS_G, na.rm = T))
+```
+
+## Using `n()`
+
+```{r}
+porc1 |> 
+  group_by(AGE, SEX) |> 
+  summarise(count = n())
+```
+
+## Plots
+
+#### Histogram
+
+```{r}
+ggplot(porc1, aes(EAR_LENGTH_MM))+
+  geom_histogram()+
+  theme_bw()
+```
+
+Change the width of the bins:
+
+```{r}
+porc1 |> 
+  ggplot(aes(EAR_LENGTH_MM))+
+  geom_histogram(bins = 50)+
+  theme_bw()
+```
+
+
+## Scatterplot
+
+```{r}
+porc1 |> 
+  ggplot(aes(HIND_FOOT_W_CLAW_MM, MASS_G))+
+  geom_point()+
+  theme_bw()
+```
+
+Make it fancier:
+
+```{r}
+porc1 |> 
+  ggplot(
+    aes(x = MASS_G,
+        y = TAIL_LENGTH_MM,
+        group = SEX,
+        color = SEX)
+  )+
+  geom_point(size = 4)+
+  labs(
+    title = "my plot",
+    x = "Body mass (g)",
+    y = "Tail length (mm)"
+  )+
+  theme_bw()
+```
+
