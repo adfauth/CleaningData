@@ -1,0 +1,6 @@
+---
+title: "Deal_with_Data"
+author: Aidan Fauth
+format: html
+---
+
